@@ -1,0 +1,15 @@
+Filter hwmap
+  Map hardware frames
+    Inputs:
+       #0: default (video)
+    Outputs:
+       #0: default (video)
+hwmap AVOptions:
+  mode              <flags>      ..FV..... Frame mapping mode (default read+write)
+     read                         ..FV..... Mapping should be readable
+     write                        ..FV..... Mapping should be writeable
+     overwrite                    ..FV..... Mapping will always overwrite the entire frame
+     direct                       ..FV..... Mapping should not involve any copying
+  derive_device     <string>     ..FV..... Derive a new device of this type
+  reverse           <int>        ..FV..... Map in reverse (create and allocate in the sink) (from 0 to 1) (default 0)
+

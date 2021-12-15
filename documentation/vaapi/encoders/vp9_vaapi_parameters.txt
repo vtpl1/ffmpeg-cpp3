@@ -1,0 +1,19 @@
+Encoder vp9_vaapi [VP9 (VAAPI)]:
+    General capabilities: delay hardware 
+    Threading capabilities: none
+    Supported pixel formats: vaapi_vld
+vp9_vaapi AVOptions:
+  -low_power         <boolean>    E..V..... Use low-power encoding mode (only available on some platforms; may not support all encoding features) (default false)
+  -idr_interval      <int>        E..V..... Distance (in I-frames) between IDR frames (from 0 to INT_MAX) (default 0)
+  -b_depth           <int>        E..V..... Maximum B-frame reference depth (from 1 to INT_MAX) (default 1)
+  -rc_mode           <int>        E..V..... Set rate control mode (from 0 to 6) (default auto)
+     auto                         E..V..... Choose mode automatically based on other parameters
+     CQP                          E..V..... Constant-quality
+     CBR                          E..V..... Constant-bitrate
+     VBR                          E..V..... Variable-bitrate
+     ICQ                          E..V..... Intelligent constant-quality
+     QVBR                         E..V..... Quality-defined variable-bitrate
+     AVBR                         E..V..... Average variable-bitrate
+  -loop_filter_level <int>        E..V..... Loop filter level (from 0 to 63) (default 16)
+  -loop_filter_sharpness <int>        E..V..... Loop filter sharpness (from 0 to 15) (default 4)
+

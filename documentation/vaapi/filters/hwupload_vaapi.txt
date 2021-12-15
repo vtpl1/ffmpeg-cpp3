@@ -1,0 +1,6 @@
+Filter hwupload
+  Upload a normal frame to a hardware frame
+    Inputs:
+       #0: default (video)
+    Outputs:
+       #0: default (video)

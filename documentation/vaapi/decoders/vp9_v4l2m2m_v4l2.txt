@@ -1,0 +1,7 @@
+Decoder vp9_v4l2m2m [V4L2 mem2mem VP9 decoder wrapper]:
+    General capabilities: delay avoidprobe hardware 
+    Threading capabilities: none
+vp9_v4l2_m2m_decoder AVOptions:
+  -num_output_buffers <int>        .D.V..... Number of buffers in the output context (from 6 to INT_MAX) (default 16)
+  -num_capture_buffers <int>        .D.V..... Number of buffers in the capture context (from 20 to INT_MAX) (default 20)
+

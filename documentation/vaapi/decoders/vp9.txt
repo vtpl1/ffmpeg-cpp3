@@ -1,0 +1,4 @@
+Decoder vp9 [Google VP9]:
+    General capabilities: dr1 threads 
+    Threading capabilities: frame and slice
+    Supported hardware devices: vaapi 

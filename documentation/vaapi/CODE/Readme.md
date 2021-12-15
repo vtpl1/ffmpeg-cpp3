@@ -1,0 +1,3 @@
+Be carefull : this code is broken, and does not work maybe ...
+
+Examples are taken from ffmpeg 4.2.2 release. Once installed on Linux, it will probably land in /usr/local/share/ffmpeg for you :-)
