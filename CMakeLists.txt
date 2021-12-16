@@ -47,34 +47,31 @@ find_library( SWSCALE_LIBRARY swscale
 find_library( POSTPROC_LIBRARY postproc
     PATHS ${FFMPEG_LIB_DIR})
 
-message(STATUS "AVCODEC_INCLUDE_DIR ${AVCODEC_INCLUDE_DIR}")
-message(STATUS "SWRESAMPLE_LIBRARY ${SWRESAMPLE_LIBRARY}")
-message(STATUS "AVUTIL_LIBRARY ${AVUTIL_LIBRARY}")
+find_package(OpenSSL)
+find_package(ffmpeg REQUIRED)
 
 file(GLOB_RECURSE INC sources/*.h)
 file(GLOB_RECURSE SRC sources/*.cpp)
 
-add_library(${PROJECT_NAME} ${SRC})
+add_library(ffmpeg_cpp3 ${SRC})
 
 
-target_include_directories(${PROJECT_NAME}
+target_include_directories(ffmpeg_cpp3
     PUBLIC ${PROJECT_SOURCE_DIR}/sources
-    PUBLIC ${AVCODEC_INCLUDE_DIR}
-    PUBLIC ${AVFORMAT_INCLUDE_DIR}
-    PUBLIC ${AVUTIL_INCLUDE_DIR}
-    PUBLIC ${AVFILTER_INCLUDE_DIR}
+    PUBLIC ${FFMPEG_INCLUDE_DIRS}
 )
 
 
-target_link_libraries(${PROJECT_NAME}
-    PUBLIC ${AVDEVICE_LIBRARY}
-    PUBLIC ${AVFILTER_LIBRARY}
-    PUBLIC ${SWSCALE_LIBRARY}
-    PUBLIC ${AVFORMAT_LIBRARY}
-    PUBLIC ${AVCODEC_LIBRARY}
-    PUBLIC ${SWRESAMPLE_LIBRARY}
-    PUBLIC ${AVUTIL_LIBRARY}
+target_link_libraries(ffmpeg_cpp3
+    PUBLIC ${FFMPEG_LIBRARIES}
 )
 
-set_property(TARGET ${PROJECT_NAME} PROPERTY
+set_property(TARGET ffmpeg_cpp3 PROPERTY
     MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+
+add_subdirectory(demos/decode_audio)
+add_subdirectory(demos/decode_video)
+add_subdirectory(demos/demo)
+add_subdirectory(demos/difference)
+add_subdirectory(demos/remuxing)
+add_subdirectory(demos/rtsp_to_rtmp)

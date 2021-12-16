@@ -15,10 +15,10 @@ namespace ffmpegcpp
 
 		virtual const char* what() const noexcept
 		{
-			return (const char *)error;
+			return _msg.c_str();
 		}
 	    private:
-		char error[AV_ERROR_MAX_STRING_SIZE];
+		std::string _msg;
 	};
 }
 

@@ -1,0 +1,31 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "remuxing",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/demos/remuxing/Debug/remuxing.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/build/demos",
+            "environment": [],
+            "console": "externalTerminal"
+        },
+        {
+            "name": "rtsp_to_rtmp",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/demos/rtsp_to_rtmp/Debug/rtsp_to_rtmp.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/build/demos",
+            "environment": [],
+            "console": "externalTerminal"
+        }
+    ]
+
+}

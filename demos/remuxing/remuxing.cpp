@@ -26,7 +26,7 @@ int main()
 
 #elif defined( H264_VIDEO )
 
-        // Default is : 
+        // Default is :
         // profile = main, crf = 10, preset = medium (default), tune = film or animation
 
         H264Codec* videoCodec = new H264Codec();
@@ -84,7 +84,7 @@ int main()
     }
     catch (FFmpegException e)
     {
-        std::cerr << "Exception caught!" << "\n";
+        std::cerr << "Exception caught! " << e.what() << "\n";
         throw e;
     }
     std::cout << "Encoding complete!" << "\n";

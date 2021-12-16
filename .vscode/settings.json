@@ -8,4 +8,7 @@
         "CMAKE_TOOLCHAIN_FILE": "${workspaceFolder}/../thirdparty/vcpkg/scripts/buildsystems/vcpkg.cmake",
         // "VCPKG_TARGET_TRIPLET": "x64-linux"
     },
+    "files.associations": {
+        "xstring": "cpp"
+    },
 }
