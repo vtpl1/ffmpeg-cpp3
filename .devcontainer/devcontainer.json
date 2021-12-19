@@ -7,11 +7,11 @@
 	"context": "..",
 
 	// Update the 'dockerFile' property if you aren't using the standard 'Dockerfile' filename.
-	"dockerFile": "../Dockerfile",
+	"dockerFile": "./Dockerfile",
 
 	// Set *default* container specific settings.json values on container create.
 	"settings": {},
-	
+
 	// Add the IDs of extensions you want installed when the container is created.
 	"extensions": [
 		"ms-vscode.cpptools",
@@ -19,7 +19,7 @@
 		"wmaurer.change-case",
 		"ms-vscode.cmake-tools",
 		"ms-python.python",
-		"jeff-hykin.better-cpp-syntax",		
+		"jeff-hykin.better-cpp-syntax",
 		"gruntfuggly.todo-tree",
 		"xaver.clang-format"
 	],
