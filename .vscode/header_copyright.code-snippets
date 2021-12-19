@@ -1,0 +1,33 @@
+{
+	// Place your ffmpeg_wrapper workspace snippets here. Each snippet is defined under a snippet name and has a scope, prefix, body and
+	// description. Add comma separated ids of the languages where the snippet is applicable in the scope field. If scope
+	// is left empty or omitted, the snippet gets applied to all languages. The prefix is what is
+	// used to trigger the snippet and the body will be expanded and inserted. Possible variables are:
+	// $1, $2 for tab stops, $0 for the final cursor position, and ${1:label}, ${2:another} for placeholders.
+	// Placeholders with the same ids are connected.
+	// Example:
+	"Copyright info": {
+		"scope": "cpp,cmake",
+		"prefix": "cp",
+		"body": [
+			"$LINE_COMMENT *****************************************************\n$LINE_COMMENT\tCopyright $CURRENT_YEAR Videonetics Technology Pvt Ltd\n$LINE_COMMENT *****************************************************\n\n"
+		],
+		"description": "Copyright info"
+	},
+	"Header info": {
+		"scope": "cpp",
+		"prefix": "header",
+		"body": [
+			"#pragma once\n#ifndef ${TM_FILENAME/[\\.-]/_/g}\n#define ${TM_FILENAME/[\\.-]/_/g}\n$1\n#endif\t$LINE_COMMENT ${TM_FILENAME/[\\.-]/_/g}\n"
+		],
+		"description": "Header info"
+	},
+	"Include Header": {
+		"scope": "cpp",
+		"prefix": "inh",
+		"body": [
+			"#include \"${TM_FILENAME/(.*)\\..+$/$1/}.h\"\n"
+		],
+		"description": "Header info"
+	}
+}
