@@ -40,3 +40,5 @@ target_link_libraries(ffmpegcpp3
 
 set_property(TARGET ffmpegcpp3 PROPERTY
     MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+
+add_subdirectory(tests)
