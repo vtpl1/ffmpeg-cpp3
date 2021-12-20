@@ -28,6 +28,12 @@ Demuxer::Demuxer(const std::string& fileName, const std::string& input_format,
         avformat_open_input(&_containerContext, _fileName.c_str(), _inputFormat, &_inputFormatAvDictionary));
     // ThrowOnFfmpegError(av_opt_set(_containerContext, "codec:v", "h264", AV_OPT_SEARCH_CHILDREN));
     ThrowOnFfmpegError(avformat_find_stream_info(_containerContext, nullptr));
+    _inputStreams.resize(_containerContext->nb_streams);
+    // av_dump_format(_containerContext, )
+    ThrowOnFfmpegReturnNullptr(_pkt = av_packet_alloc());
+    av_init_packet(_pkt);
+    _pkt->data = NULL;
+    _pkt->size = 0;
   }
 }
 Demuxer::~Demuxer() { Stop(); }
@@ -42,9 +48,14 @@ void Demuxer::Stop()
     av_dict_free(&_inputFormatAvDictionary);
     _inputFormatAvDictionary = nullptr;
   }
+  _inputStreams.clear();
   if (_containerContext) {
     avformat_close_input(&_containerContext);
     _containerContext = nullptr;
+  }
+  if (_pkt != nullptr) {
+    av_packet_free(&_pkt);
+    _pkt = nullptr;
   }
 }
 bool Demuxer::IsDone() { return _do_shutdown_composite(); }

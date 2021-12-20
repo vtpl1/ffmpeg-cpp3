@@ -7,10 +7,12 @@
 #define Demuxer_h
 #include <atomic>
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
 #include "InputSource.h"
+#include "InputStream.h"
 #include "ffmpeg.h"
 
 namespace ffpp
@@ -27,6 +29,8 @@ private:
   AVDictionary* _inputFormatAvDictionary{nullptr};
   AVInputFormat* _inputFormat{nullptr};
   AVFormatContext* _containerContext{nullptr};
+  std::vector<std::unique_ptr<InputStream>> _inputStreams;
+  AVPacket* _pkt{nullptr};
 
 public:
   Demuxer(const std::string& fileName, const std::string& input_format = std::string(),

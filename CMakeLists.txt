@@ -13,21 +13,24 @@ find_package(Threads REQUIRED)
 
 set(CMAKE_CXX_CLANG_TIDY
     clang-tidy;)
+
 add_library(ffmpegcpp3 STATIC
+    src/CoreObject.cpp
+    src/CoreContext.cpp
     src/FFmpegException.cpp
     src/OpenCodec.cpp
     src/Sources/InputSource.cpp
     src/Sources/Demuxer.cpp
-    src/CoreContext.cpp
-    src/CoreObject.cpp
+    src/Demuxing/InputStream.cpp
 
     inc/ffmpeg.h
+    inc/CoreObject.h
+    inc/CoreContext.h
     inc/FFmpegException.h
     inc/OpenCodec.h
     inc/Sources/InputSource.h
     inc/Sources/Demuxer.h
-    inc/CoreContext.h
-    inc/CoreObject.h
+    inc/Demuxing/InputStream.h
 
 )
 
@@ -36,6 +39,7 @@ target_compile_features(ffmpegcpp3 PRIVATE cxx_std_17)
 target_include_directories(ffmpegcpp3
     PUBLIC inc
     PUBLIC inc/Sources
+    PUBLIC inc/Demuxing
     PUBLIC ${FFMPEG_INCLUDE_DIRS}
 )
 
