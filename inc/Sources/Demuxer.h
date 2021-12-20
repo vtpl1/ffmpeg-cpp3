@@ -13,9 +13,11 @@
 #include "InputSource.h"
 #include "ffmpeg.h"
 
-namespace ffpp {
-class Demuxer : public InputSource {
- private:
+namespace ffpp
+{
+class Demuxer : public InputSource
+{
+private:
   std::atomic_bool _do_shutdown{false};
   std::atomic_bool _is_internal_shutdown{false};
   bool _is_already_shutting_down{false};
@@ -26,8 +28,9 @@ class Demuxer : public InputSource {
   AVInputFormat* _inputFormat{nullptr};
   AVFormatContext* _containerContext{nullptr};
 
- public:
-  Demuxer(const std::string& fileName, const std::string& input_format = std::string(),const std::multimap<std::string, std::string>& ffmpeg_options = std::multimap<std::string, std::string>());
+public:
+  Demuxer(const std::string& fileName, const std::string& input_format = std::string(),
+          const std::multimap<std::string, std::string>& ffmpeg_options = std::multimap<std::string, std::string>());
   ~Demuxer();
   void SignalToStop();
   void Stop();
@@ -36,6 +39,6 @@ class Demuxer : public InputSource {
   void PreparePipeline();
 };
 
-}  // namespace ffmpegcpp3
+} // namespace ffpp
 
-#endif  // Demuxer_h
+#endif // Demuxer_h

@@ -1,8 +1,14 @@
-#include <Demuxer.h>
+// *****************************************************
+//  Copyright 2021 Videonetics Technology Pvt Ltd
+// *****************************************************
+
 #include <catch2/catch.hpp>
 #include <iostream>
 #include <map>
 #include <string>
+
+#include "Demuxer.h"
+#include "FFmpegException.h"
 
 TEST_CASE("demuxer test", "[demuxer]")
 {
@@ -17,6 +23,8 @@ TEST_CASE("demuxer test", "[demuxer]")
   options.emplace(std::make_pair<std::string, std::string>("fflags", "nobuffer"));
   options.emplace(std::make_pair<std::string, std::string>("fflags", "flush_packets"));
 
-  std::unique_ptr<ffpp::InputSource> demuxer(new ffpp::Demuxer("rtmp://0.0.0.0:9105", "flv", options));
-  REQUIRE(demuxer.get() != nullptr);
+  std::unique_ptr<ffpp::InputSource> demuxer;
+  REQUIRE_THROWS_AS(demuxer.reset(new ffpp::Demuxer("rtmp://0.0.0.0:9105", "flv", options)), ffpp::FFmpegException);
+
+  // REQUIRE(demuxer.get() != nullptr);
 }

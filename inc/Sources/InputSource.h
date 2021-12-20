@@ -5,10 +5,13 @@
 #pragma once
 #ifndef InputSource_h
 #define InputSource_h
-namespace ffpp {
-class InputSource {
- private:
- public:
+#include "CoreObject.h"
+namespace ffpp
+{
+class InputSource : public CoreObject
+{
+private:
+public:
   virtual ~InputSource() {}
 
   virtual void PreparePipeline() = 0;
@@ -16,6 +19,6 @@ class InputSource {
   virtual void Step() = 0;
 };
 
-}  // namespace ffmpegcpp3
+} // namespace ffpp
 
-#endif  // InputSource_h
+#endif // InputSource_h

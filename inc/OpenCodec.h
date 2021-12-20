@@ -1,21 +1,23 @@
+// *****************************************************
+//  Copyright 2021 Videonetics Technology Pvt Ltd
+// *****************************************************
+
 #pragma once
 #ifndef OpenCodec_h
 #define OpenCodec_h
-
-
-
 #include "ffmpeg.h"
-namespace ffpp {
-class OpenCodec {
- private:
+namespace ffpp
+{
+class OpenCodec
+{
+private:
   AVCodecContext* context{nullptr};
 
- public:
+public:
   OpenCodec(AVCodecContext* openCodecContext);
   ~OpenCodec();
   AVCodecContext* GetContext();
 };
 
-}  // namespace ffmpegcpp3
-
-#endif
+} // namespace ffpp
+#endif // OpenCodec_h

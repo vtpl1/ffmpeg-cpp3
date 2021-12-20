@@ -4,21 +4,31 @@
 
 cmake_minimum_required(VERSION 3.16)
 project(ffmpegcpp3)
+message(STATUS "VCPKG_INSTALLED_DIR " ${VCPKG_INSTALLED_DIR})
+list(APPEND CMAKE_MODULE_PATH ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/share/ffmpeg)
+message(STATUS "CMAKE_MODULE_PATH" ${CMAKE_MODULE_PATH})
 
-find_package(ffmpeg REQUIRED)
+find_package(FFMPEG REQUIRED)
 find_package(Threads REQUIRED)
 
+set(CMAKE_CXX_CLANG_TIDY
+    clang-tidy;)
 add_library(ffmpegcpp3 STATIC
     src/FFmpegException.cpp
     src/OpenCodec.cpp
     src/Sources/InputSource.cpp
     src/Sources/Demuxer.cpp
+    src/CoreContext.cpp
+    src/CoreObject.cpp
 
     inc/ffmpeg.h
     inc/FFmpegException.h
     inc/OpenCodec.h
     inc/Sources/InputSource.h
     inc/Sources/Demuxer.h
+    inc/CoreContext.h
+    inc/CoreObject.h
+
 )
 
 target_compile_features(ffmpegcpp3 PRIVATE cxx_std_17)
