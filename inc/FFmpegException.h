@@ -23,8 +23,15 @@ public:
 private:
   std::string _msg;
 };
+
+class FFmpegNotImplementedException : public FFmpegException
+{
+public:
+  FFmpegNotImplementedException() : FFmpegException("Not implemented yet ") {}
+};
+
 auto ThrowOnFfmpegErrorInternal = [](int res, const char* file_name = nullptr, int lineNum = -1) {
-  if (0 != res) {
+  if (0 > res) {
     std::stringstream ss;
     if (lineNum > 0) {
       if (file_name != nullptr) {
@@ -36,10 +43,10 @@ auto ThrowOnFfmpegErrorInternal = [](int res, const char* file_name = nullptr, i
   }
 };
 auto ThrowOnFfmpegReturnNullptrInternal = [](void* ptr, const char* file_name = nullptr, int lineNum = -1) {
-  if (ptr == nullptr) {
+  if (nullptr == ptr) {
     std::stringstream ss;
     if (lineNum > 0) {
-      if (file_name != nullptr) {
+      if (nullptr != file_name) {
         ss << file_name << ":";
       }
       ss << lineNum << std::endl;

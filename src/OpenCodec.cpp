@@ -10,14 +10,11 @@
 
 namespace ffpp
 {
-OpenCodec::OpenCodec(AVCodecContext* openCodecContext)
+OpenCodec::OpenCodec(AVCodecContext* context)
 {
-  if (!avcodec_is_open(context)) {
-    throw FFmpegException(
-        std::string("Codec context for " + std::string(context->codec->name) + " hasn't been opened yet"));
-  }
-  this->context = context;
+  ThrowOnFfmpegError(avcodec_is_open(context));
+  _context.reset(context);
 }
-OpenCodec::~OpenCodec() { avcodec_free_context(&context); }
-AVCodecContext* OpenCodec::GetContext() { return context; }
+
+AVCodecContext* OpenCodec::GetContext() { return _context.get(); }
 } // namespace ffpp

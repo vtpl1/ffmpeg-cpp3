@@ -19,18 +19,36 @@ add_library(ffmpegcpp3 STATIC
     src/CoreContext.cpp
     src/FFmpegException.cpp
     src/OpenCodec.cpp
+    src/CodecDeducer.cpp
+    src/FrameContainer.cpp
     src/Sources/InputSource.cpp
     src/Sources/Demuxer.cpp
     src/Demuxing/InputStream.cpp
+    src/Demuxing/VideoInputStream.cpp
+    src/Demuxing/AudioInputStream.cpp
+    src/FrameSinks/FrameSinkStream.cpp
+
 
     inc/ffmpeg.h
     inc/CoreObject.h
     inc/CoreContext.h
     inc/FFmpegException.h
     inc/OpenCodec.h
+    inc/CodecDeducer.h
+    inc/FrameContainer.h
     inc/Sources/InputSource.h
     inc/Sources/Demuxer.h
+    inc/Demuxing/StreamData.h
     inc/Demuxing/InputStream.h
+    inc/Demuxing/VideoInputStream.h
+    inc/Demuxing/AudioInputStream.h
+    inc/Info/VideoStreamInfo.h
+    inc/Info/AudioStreamInfo.h
+    inc/Info/ContainerInfo.h
+    inc/FrameSinks/FrameSink.h
+    inc/FrameSinks/FrameSinkStream.h
+
+
 
 )
 
@@ -40,6 +58,8 @@ target_include_directories(ffmpegcpp3
     PUBLIC inc
     PUBLIC inc/Sources
     PUBLIC inc/Demuxing
+    PUBLIC inc/Info
+    PUBLIC inc/FrameSinks
     PUBLIC ${FFMPEG_INCLUDE_DIRS}
 )
 
