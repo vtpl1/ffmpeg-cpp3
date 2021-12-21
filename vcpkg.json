@@ -2,6 +2,8 @@
     "name": "ffmpegcpp3",
     "version-string": "0.1",
     "dependencies": [
+        "spdlog",
+        "poco",
         "catch2",
         {
             "name": "ffmpeg",
