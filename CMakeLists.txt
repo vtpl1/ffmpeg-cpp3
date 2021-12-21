@@ -28,6 +28,9 @@ add_library(ffmpegcpp3 STATIC
     src/Demuxing/AudioInputStream.cpp
     src/FrameSinks/FrameSinkStream.cpp
 
+    src/SimpleInputOutput/InputToMessageQueue.cpp
+    src/SimpleInputOutput/OutputFromMessageQueue.cpp
+
 
     inc/ffmpeg.h
     inc/CoreObject.h
@@ -48,6 +51,8 @@ add_library(ffmpegcpp3 STATIC
     inc/FrameSinks/FrameSink.h
     inc/FrameSinks/FrameSinkStream.h
 
+    inc/SimpleInputOutput/InputToMessageQueue.h
+    inc/SimpleInputOutput/OutputFromMessageQueue.h
 
 
 )
@@ -60,6 +65,7 @@ target_include_directories(ffmpegcpp3
     PUBLIC inc/Demuxing
     PUBLIC inc/Info
     PUBLIC inc/FrameSinks
+    PUBLIC inc/SimpleInputOutput
     PUBLIC ${FFMPEG_INCLUDE_DIRS}
 )
 
