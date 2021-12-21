@@ -28,7 +28,7 @@ private:
   bool _is_already_shutting_down{false};
   std::string _input_name;
   inline bool _do_shutdown_composite() { return (_do_shutdown || _is_internal_shutdown); }
-  std::thread _thread;
+  std::unique_ptr<std::thread> _thread;
   void run();
 };
 

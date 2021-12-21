@@ -6,6 +6,7 @@
 #include <chrono>
 #include <iostream>
 #include <memory>
+#include <signal.h>
 #include <thread>
 #include <vector>
 
@@ -21,26 +22,27 @@ public:
   void exception() override { RAY_LOG(FATAL) << "unknown exception "; }
 };
 
-class EntryPoint : public Poco::Util::ServerApplication
+class EntryPoint : public Poco::Util::Application
 {
 private:
   std::string _session_dir{};
   ServerErrorHandler _serverErrorHandler;
 
 public:
+  static std::atomic_bool do_shutdown;
   EntryPoint() = default;
   void initialize(Application& self) override
   {
     loadConfiguration(); // load default configuration files, if present
     Poco::ErrorHandler::set(&_serverErrorHandler);
-    ServerApplication::initialize(self);
+    Application::initialize(self);
   }
 
-  void uninitialize() override { ServerApplication::uninitialize(); }
+  void uninitialize() override { Application::uninitialize(); }
 
   void defineOptions(Poco::Util::OptionSet& options) override
   {
-    ServerApplication::defineOptions(options);
+    Application::defineOptions(options);
     options.addOption(Poco::Util::Option("help", "h", "display help information on command line arguments")
                           .required(false)
                           .repeatable(false));
@@ -48,7 +50,7 @@ public:
 
   void handleOption(const std::string& name, const std::string& value) override
   {
-    ServerApplication::handleOption(name, value);
+    Application::handleOption(name, value);
   }
 
   void displayHelp()
@@ -76,6 +78,14 @@ public:
     return _session_dir;
   }
 
+  static void sigHandlerAppClose(int l_signo)
+  {
+    if (l_signo == SIGINT) {
+      RAY_LOG(WARNING) << "Signal: " << l_signo << ":SIGINT(Interactive attention signal) received.\n";
+      do_shutdown = true;
+    }
+  }
+
   int main(const ArgVec& args)
   {
     std::string name_of_app = config().getString("application.baseName");
@@ -87,17 +97,32 @@ public:
     if (data_dir.empty()) {
       data_dir = get_session_folder();
     }
-    Poco::Net::initializeNetwork();
-    {
-      ffpp::InputToMessageQueue i("");
-      ffpp::OutputFromMessageQueue o("");
-      exit(1);
-      waitForTerminationRequest();
+    if (signal(SIGINT, EntryPoint::sigHandlerAppClose) == SIG_ERR) {
+      RAY_LOG(FATAL) << "Can't attach sigHandlerAppClose signal\n";
+      return ExitCode::EXIT_OSERR;
     }
+    Poco::Net::initializeNetwork();
+    std::unique_ptr<ffpp::InputToMessageQueue> input_to_message_queue(new ffpp::InputToMessageQueue("rtsp://192.168.1.1"));
+    std::unique_ptr<ffpp::OutputFromMessageQueue> output_from_message_queue(new ffpp::OutputFromMessageQueue("rtmp://192.168.1.1"));
+    input_to_message_queue->Start();
+    output_from_message_queue->Start();
+    while (!do_shutdown) {
+      std::this_thread::sleep_for(std::chrono::microseconds(100));
+      if (input_to_message_queue->IsDone())
+        break;
+      if (output_from_message_queue->IsDone())
+        break;
+    }
+    input_to_message_queue->SignalToStop();
+    output_from_message_queue->SignalToStop();
+    input_to_message_queue->Stop();
+    output_from_message_queue->Stop();
     RAY_LOG(INFO) << "main Stopped: " << name_of_app;
     Poco::Net::uninitializeNetwork();
     return Application::EXIT_OK;
   }
 };
 
-POCO_SERVER_MAIN(EntryPoint);
+std::atomic_bool EntryPoint::do_shutdown{false};
+
+POCO_APP_MAIN(EntryPoint);
