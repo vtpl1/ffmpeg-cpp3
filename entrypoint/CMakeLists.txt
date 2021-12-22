@@ -1,5 +1,4 @@
 cmake_minimum_required(VERSION 3.17)
-project(ffmpeg_cpp3_tester)
 find_package(spdlog REQUIRED)
 find_package( Poco REQUIRED Util Net )
 # find_package( Poco REQUIRED Util Net )

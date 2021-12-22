@@ -24,7 +24,7 @@ void OutputFromMessageQueue::run()
 {
   std::cout << "Started : OutputFromMessageQueue" << std::endl;
   while (!_do_shutdown_composite()) {
-    std::this_thread::sleep_for(std::chrono::seconds(10));
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
     _is_internal_shutdown = true;
   }
   std::cout << "End : OutputFromMessageQueue" << std::endl;

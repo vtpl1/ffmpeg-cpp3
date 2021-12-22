@@ -102,8 +102,10 @@ public:
       return ExitCode::EXIT_OSERR;
     }
     Poco::Net::initializeNetwork();
-    std::unique_ptr<ffpp::InputToMessageQueue> input_to_message_queue(new ffpp::InputToMessageQueue("rtsp://192.168.1.1"));
-    std::unique_ptr<ffpp::OutputFromMessageQueue> output_from_message_queue(new ffpp::OutputFromMessageQueue("rtmp://192.168.1.1"));
+    std::unique_ptr<ffpp::InputToMessageQueue> input_to_message_queue(
+        new ffpp::InputToMessageQueue("rtsp://192.168.1.1"));
+    std::unique_ptr<ffpp::OutputFromMessageQueue> output_from_message_queue(
+        new ffpp::OutputFromMessageQueue("rtmp://192.168.1.1"));
     input_to_message_queue->Start();
     output_from_message_queue->Start();
     while (!do_shutdown) {
