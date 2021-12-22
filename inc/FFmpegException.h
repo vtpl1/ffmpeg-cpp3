@@ -29,7 +29,6 @@ class FFmpegNotImplementedException : public FFmpegException
 public:
   FFmpegNotImplementedException() : FFmpegException("Not implemented yet ") {}
 };
-
 auto ThrowOnFfmpegErrorInternal = [](int res, const char* file_name = nullptr, int lineNum = -1) {
   if (0 > res) {
     std::stringstream ss;
@@ -37,21 +36,27 @@ auto ThrowOnFfmpegErrorInternal = [](int res, const char* file_name = nullptr, i
       if (file_name != nullptr) {
         ss << file_name << ":";
       }
-      ss << lineNum << std::endl;
+      ss << lineNum;
     }
     throw FFmpegException(ss.str(), res);
+  }
+};
+auto ThrowOnFfmpegErrorWithAllowedErrorInternal = [](int res, int allowed_error, const char* file_name = nullptr, int lineNum = -1) {
+  if (res != allowed_error) {
+    ThrowOnFfmpegErrorInternal(res, file_name, lineNum);
   }
 };
 auto ThrowOnFfmpegReturnNullptrInternal = [](void* ptr, const char* file_name = nullptr, int lineNum = -1) {
   if (nullptr == ptr) {
     std::stringstream ss;
+    ss << "Returned nullptr, ";
     if (lineNum > 0) {
       if (nullptr != file_name) {
         ss << file_name << ":";
       }
-      ss << lineNum << std::endl;
+      ss << lineNum;
     }
-    ss << "Returned nullptr";
+
     throw FFmpegException(ss.str());
   }
 };
@@ -71,5 +76,6 @@ private:
 
 } // namespace ffpp
 #define ThrowOnFfmpegError(res) ::ffpp::ThrowOnFfmpegErrorInternal(res, __FILE__, __LINE__)
+#define ThrowOnFfmpegErrorWithAllowedError(res, allowed_error) ::ffpp::ThrowOnFfmpegErrorWithAllowedErrorInternal(res, allowed_error, __FILE__, __LINE__)
 #define ThrowOnFfmpegReturnNullptr(ptr) ::ffpp::ThrowOnFfmpegReturnNullptrInternal(ptr, __FILE__, __LINE__)
 #endif // FFmpegException_h

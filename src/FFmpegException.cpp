@@ -5,6 +5,7 @@
 #include "FFmpegException.h"
 
 #include "ffmpeg.h"
+#include <sstream>
 #if _MSC_VER
 #undef av_err2str
 #define av_err2str(errnum)                                                                                             \
@@ -21,6 +22,11 @@ FFmpegException::FFmpegException(const std::string& error) : _msg(error) {}
 
 FFmpegException::FFmpegException(const std::string& error, int ffmpegErrorCode)
 {
-  _msg = error + "[" + av_err2str(ffmpegErrorCode) + "]";
+  std::stringstream ss;
+  ss << av_err2str(ffmpegErrorCode);
+  ss << " [";
+  ss << error;
+  ss << "]";
+  _msg = ss.str();
 }
 } // namespace ffpp

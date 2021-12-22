@@ -22,9 +22,10 @@
 #include "spdlog/sinks/stdout_color_sinks.h"
 #include "spdlog/spdlog.h"
 
-#include "event_label.h"
 namespace ray
 {
+
+#define EL_RAY_FATAL_CHECK_FAILED "RAY_FATAL_CHECK_FAILED"
 
 RayLogLevel RayLog::severity_threshold_ = RayLogLevel::INFO;
 std::string RayLog::app_name_ = "";

@@ -14,6 +14,8 @@ find_package(Threads REQUIRED)
 set(CMAKE_CXX_CLANG_TIDY
     clang-tidy;)
 
+add_subdirectory(utils)
+
 add_library(ffmpegcpp3 STATIC
     src/CoreObject.cpp
     src/CoreContext.cpp
@@ -76,6 +78,7 @@ target_compile_definitions(ffmpegcpp3
 target_link_libraries(ffmpegcpp3
     PUBLIC ${FFMPEG_LIBRARIES}
     PUBLIC Threads::Threads
+    PUBLIC utils
 )
 
 set_property(TARGET ffmpegcpp3 PROPERTY

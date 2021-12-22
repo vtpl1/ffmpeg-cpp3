@@ -4,9 +4,9 @@
 #include <Poco/Util/ServerApplication.h>
 #include <atomic>
 #include <chrono>
+#include <csignal>
 #include <iostream>
 #include <memory>
-#include <signal.h>
 #include <thread>
 #include <vector>
 
@@ -103,9 +103,11 @@ public:
     }
     Poco::Net::initializeNetwork();
     std::unique_ptr<ffpp::InputToMessageQueue> input_to_message_queue(
-        new ffpp::InputToMessageQueue("rtsp://192.168.1.1"));
+        new ffpp::InputToMessageQueue("rtsp://admin:AdmiN1234@192.168.0.58/h264/ch1/main")
+        // new ffpp::InputToMessageQueue("rtmp://0.0.0.0:9005")
+    );
     std::unique_ptr<ffpp::OutputFromMessageQueue> output_from_message_queue(
-        new ffpp::OutputFromMessageQueue("rtmp://192.168.1.1"));
+        new ffpp::OutputFromMessageQueue("rtmp://192.168.1.116:9101", input_to_message_queue->GetMessageQueue()));
     input_to_message_queue->Start();
     output_from_message_queue->Start();
     while (!do_shutdown) {
@@ -117,8 +119,11 @@ public:
     }
     input_to_message_queue->SignalToStop();
     output_from_message_queue->SignalToStop();
-    input_to_message_queue->Stop();
     output_from_message_queue->Stop();
+    output_from_message_queue = nullptr;
+    input_to_message_queue->Stop();
+    input_to_message_queue = nullptr;
+
     RAY_LOG(INFO) << "main Stopped: " << name_of_app;
     Poco::Net::uninitializeNetwork();
     return Application::EXIT_OK;

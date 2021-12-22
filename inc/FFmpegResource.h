@@ -11,7 +11,7 @@ namespace ffpp
 template <typename value_type> struct Deleter {
 };
 template <> struct Deleter<AVFormatContext> {
-  void operator()(AVFormatContext* ptr) { avformat_close_input(&ptr); }
+  void operator()(AVFormatContext* ptr) { avformat_free_context(ptr); }
 };
 template <> struct Deleter<AVPacket> {
   void operator()(AVPacket* ptr) { av_packet_free(&ptr); }
@@ -22,7 +22,9 @@ template <> struct Deleter<AVCodecContext> {
 template <> struct Deleter<AVFrame> {
   void operator()(AVFrame* ptr) { av_frame_free(&ptr); }
 };
-
+template <> struct Deleter<AVDictionary> {
+  void operator()(AVDictionary* ptr) { av_dict_free(&ptr); }
+};
 } // namespace ffpp
 
 #endif // FFmpegResource_h

@@ -18,6 +18,7 @@ extern "C" {
 #include <libavutil/imgutils.h>
 #include <libavutil/opt.h>
 #include <libavutil/timestamp.h>
+#include <libavutil/threadmessage.h>
 #include <libswresample/swresample.h>
 #include <libswscale/swscale.h>
 #ifdef __cplusplus

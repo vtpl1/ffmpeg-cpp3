@@ -9,6 +9,12 @@
 #include <memory>
 #include <string>
 #include <thread>
+
+#include "FFmpegResource.h"
+#include "ffmpeg.h"
+#ifndef MSGQ_LENGTH
+#define MSGQ_LENGTH 512
+#endif
 namespace ffpp
 {
 class InputToMessageQueue
@@ -21,6 +27,11 @@ public:
   void SignalToStop();
   void Stop();
   inline bool IsDone() { return (_do_shutdown || _is_internal_shutdown); }
+  AVThreadMessageQueue* GetMessageQueue();
+
+  uint64_t _last_watch_dog_time_in_sec{0};
+
+  static int resetWatchDogTimer(void* opaque);
 
 private:
   std::atomic_bool _do_shutdown{false};
@@ -30,6 +41,11 @@ private:
   inline bool _do_shutdown_composite() { return (_do_shutdown || _is_internal_shutdown); }
   std::unique_ptr<std::thread> _thread;
   void run();
+
+  AVFormatContext* _av_format_context{nullptr};
+  AVCodecContext* _av_codec_context_audio{nullptr};
+  AVThreadMessageQueue* _av_thread_message_queue{nullptr};
+
 };
 
 } // namespace ffpp
