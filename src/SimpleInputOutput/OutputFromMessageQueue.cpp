@@ -7,7 +7,7 @@
 #include "FFmpegException.h"
 #include "OutputFromMessageQueue.h"
 #include "logging.h"
-
+//http://underpop.online.fr/f/ffmpeg/help/hls-2.htm.gz
 constexpr int HLS_SEGMENT_DURATION = 3;
 constexpr int HLS_LIST_SIZE = 2;
 constexpr int HLS_WRAP = 10;
