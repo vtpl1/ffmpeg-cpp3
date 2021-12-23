@@ -57,6 +57,13 @@ enum class RayLogLevel {
   if (ray::RayLog::IsLevelEnabled(ray::RayLogLevel::level)) \
   RAY_LOG_INTERNAL(ray::RayLogLevel::level)
 
+#define RAY_LOG_TRC RAY_LOG(TRACE)
+#define RAY_LOG_DBG RAY_LOG(DEBUG)
+#define RAY_LOG_INF RAY_LOG(INFO)
+#define RAY_LOG_ERR RAY_LOG(ERROR)
+#define RAY_LOG_FAT RAY_LOG(FATAL)
+
+
 #define RAY_IGNORE_EXPR(expr) ((void)(expr))
 
 #define RAY_CHECK(condition)                                                          \

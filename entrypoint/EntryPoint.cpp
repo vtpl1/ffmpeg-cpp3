@@ -28,6 +28,10 @@ private:
   std::string _session_dir{};
   ServerErrorHandler _serverErrorHandler;
 
+  bool _help_requested{false};
+  std::string _input_url{};
+  std::string _output_url{};
+
 public:
   static std::atomic_bool do_shutdown;
   EntryPoint() = default;
@@ -42,14 +46,27 @@ public:
 
   void defineOptions(Poco::Util::OptionSet& options) override
   {
-    Application::defineOptions(options);
     options.addOption(Poco::Util::Option("help", "h", "display help information on command line arguments")
                           .required(false)
                           .repeatable(false));
+    options.addOption(
+        Poco::Util::Option("input", "i", "input media url").required(true).repeatable(false).argument("name=value"));
+    options.addOption(
+        Poco::Util::Option("output", "o", "output media url").required(true).repeatable(false).argument("name=value"));
+
+    Application::defineOptions(options);
   }
 
   void handleOption(const std::string& name, const std::string& value) override
   {
+    std::cout << "name : " << name << " value: " << value << std::endl;
+    if (name == "help") {
+      _help_requested = true;
+    } else if (name == "input") {
+      _input_url = value;
+    } else if (name == "output") {
+      _output_url = value;
+    }
     Application::handleOption(name, value);
   }
 
@@ -58,7 +75,7 @@ public:
     Poco::Util::HelpFormatter helpFormatter(options());
     helpFormatter.setCommand(commandName());
     helpFormatter.setUsage("OPTIONS");
-    helpFormatter.setHeader("A web server that shows how to work with HTML forms.");
+    helpFormatter.setHeader("Media handler class.");
     helpFormatter.format(std::cout);
   }
   const std::string& get_session_folder()
@@ -88,10 +105,14 @@ public:
 
   int main(const ArgVec& args)
   {
+    if (_help_requested) {
+      displayHelp();
+      return Application::EXIT_CONFIG;
+    }
     std::string name_of_app = config().getString("application.baseName");
     //::ray::RayLog::StartRayLog(name_of_app, ::ray::RayLogLevel::DEBUG, get_session_folder());
     std::string a;
-    ::ray::RayLog::StartRayLog(name_of_app, ::ray::RayLogLevel::DEBUG, a);
+    ::ray::RayLog::StartRayLog(name_of_app, ::ray::RayLogLevel::INFO, a);
     RAY_LOG(INFO) << "main Started: " << name_of_app;
     std::string data_dir("");
     if (data_dir.empty()) {
@@ -102,26 +123,34 @@ public:
       return ExitCode::EXIT_OSERR;
     }
     Poco::Net::initializeNetwork();
+    RAY_LOG_INF << "Starting with input : " << _input_url << " : output : " << _output_url;
     std::unique_ptr<ffpp::InputToMessageQueue> input_to_message_queue(
-        new ffpp::InputToMessageQueue("rtsp://admin:AdmiN1234@192.168.0.58/h264/ch1/main")
+        // rtsp://admin:AdmiN1234@192.168.0.58/h264/ch1/main/
+        // rtsp://admin:Admin@123192.168.0.42:554/0/onvif/profile1/media.smp
+        // rtsp://admin:AdmiN1234@192.168.0.91/axis-media/media.amp
+        new ffpp::InputToMessageQueue(_input_url)
         // new ffpp::InputToMessageQueue("rtmp://0.0.0.0:9005")
     );
-    std::unique_ptr<ffpp::OutputFromMessageQueue> output_from_message_queue(
-        new ffpp::OutputFromMessageQueue("rtmp://192.168.1.116:9101", input_to_message_queue->GetMessageQueue()));
-    input_to_message_queue->Start();
-    output_from_message_queue->Start();
-    while (!do_shutdown) {
-      std::this_thread::sleep_for(std::chrono::microseconds(100));
-      if (input_to_message_queue->IsDone())
-        break;
-      if (output_from_message_queue->IsDone())
-        break;
+    int ret = 0;
+    if (input_to_message_queue->Start()) {
+      std::unique_ptr<ffpp::OutputFromMessageQueue> output_from_message_queue(new ffpp::OutputFromMessageQueue(
+          _output_url, input_to_message_queue->GetMessageQueue(), input_to_message_queue->GetInputAVFormatContext()));
+
+      if (output_from_message_queue->Start()) {
+        while (!do_shutdown) {
+          std::this_thread::sleep_for(std::chrono::microseconds(100));
+          if (input_to_message_queue->IsDone())
+            break;
+          if (output_from_message_queue->IsDone())
+            break;
+        }
+        output_from_message_queue->SignalToStop();
+        output_from_message_queue->Stop();
+        output_from_message_queue = nullptr;
+      }
+      input_to_message_queue->SignalToStop();
+      input_to_message_queue->Stop();
     }
-    input_to_message_queue->SignalToStop();
-    output_from_message_queue->SignalToStop();
-    output_from_message_queue->Stop();
-    output_from_message_queue = nullptr;
-    input_to_message_queue->Stop();
     input_to_message_queue = nullptr;
 
     RAY_LOG(INFO) << "main Stopped: " << name_of_app;

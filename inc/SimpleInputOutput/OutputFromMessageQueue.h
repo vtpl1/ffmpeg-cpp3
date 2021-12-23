@@ -6,6 +6,7 @@
 #ifndef OutputFromMessageQueue_h
 #define OutputFromMessageQueue_h
 #include <atomic>
+#include <map>
 #include <memory>
 #include <string>
 #include <thread>
@@ -17,9 +18,9 @@ class OutputFromMessageQueue
 {
 
 public:
-  OutputFromMessageQueue(const std::string& input_name, void* av_thread_message_queue);
+  OutputFromMessageQueue(const std::string& input_name, void* av_thread_message_queue, void* input_av_format_context);
   ~OutputFromMessageQueue();
-  void Start();
+  bool Start();
   void SignalToStop();
   void Stop();
   inline bool IsDone() { return (_do_shutdown || _is_internal_shutdown); }
@@ -27,6 +28,7 @@ public:
   uint64_t _last_watch_dog_time_in_sec{0};
 
   static int resetWatchDogTimer(void* opaque);
+
 private:
   std::atomic_bool _do_shutdown{false};
   std::atomic_bool _is_internal_shutdown{false};
@@ -37,7 +39,9 @@ private:
   void run();
 
   AVFormatContext* _av_format_context{nullptr};
+  AVFormatContext* _input_av_format_context{nullptr};
   AVThreadMessageQueue* _av_thread_message_queue{nullptr};
+  std::map<int, int> _input_output_index_map;
 };
 
 } // namespace ffpp

@@ -37,14 +37,24 @@ auto ThrowOnFfmpegErrorInternal = [](int res, const char* file_name = nullptr, i
         ss << file_name << ":";
       }
       ss << lineNum;
+      ss << " return :";
+      ss << res;
     }
     throw FFmpegException(ss.str(), res);
   }
 };
-auto ThrowOnFfmpegErrorWithAllowedErrorInternal = [](int res, int allowed_error, const char* file_name = nullptr, int lineNum = -1) {
-  if (res != allowed_error) {
-    ThrowOnFfmpegErrorInternal(res, file_name, lineNum);
+auto ThrowOnFfmpegErrorWithAllowedErrorInternal = [](int res, int allowed_error, int allowed_error2,
+                                                     const char* file_name = nullptr, int lineNum = -1) {
+  if (allowed_error2 != 0) {
+    if (res == allowed_error2) {
+      return;
+    }
   }
+  if (res == allowed_error) {
+    return;
+  }
+
+  ThrowOnFfmpegErrorInternal(res, file_name, lineNum);
 };
 auto ThrowOnFfmpegReturnNullptrInternal = [](void* ptr, const char* file_name = nullptr, int lineNum = -1) {
   if (nullptr == ptr) {
@@ -76,6 +86,9 @@ private:
 
 } // namespace ffpp
 #define ThrowOnFfmpegError(res) ::ffpp::ThrowOnFfmpegErrorInternal(res, __FILE__, __LINE__)
-#define ThrowOnFfmpegErrorWithAllowedError(res, allowed_error) ::ffpp::ThrowOnFfmpegErrorWithAllowedErrorInternal(res, allowed_error, __FILE__, __LINE__)
+#define ThrowOnFfmpegErrorWithAllowedError2(res, allowed_error, allowed_error2)                                        \
+  ::ffpp::ThrowOnFfmpegErrorWithAllowedErrorInternal(res, allowed_error, allowed_error2, __FILE__, __LINE__)
+#define ThrowOnFfmpegErrorWithAllowedError(res, allowed_error)                                                         \
+  ThrowOnFfmpegErrorWithAllowedError2(res, allowed_error, 0)
 #define ThrowOnFfmpegReturnNullptr(ptr) ::ffpp::ThrowOnFfmpegReturnNullptrInternal(ptr, __FILE__, __LINE__)
 #endif // FFmpegException_h

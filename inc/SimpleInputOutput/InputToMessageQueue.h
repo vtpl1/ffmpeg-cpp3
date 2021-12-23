@@ -23,11 +23,12 @@ class InputToMessageQueue
 public:
   InputToMessageQueue(const std::string& input_name);
   ~InputToMessageQueue();
-  void Start();
+  bool Start();
   void SignalToStop();
   void Stop();
   inline bool IsDone() { return (_do_shutdown || _is_internal_shutdown); }
   AVThreadMessageQueue* GetMessageQueue();
+  inline AVFormatContext* GetInputAVFormatContext() { return _av_format_context; } // Valid onllly after successful start
 
   uint64_t _last_watch_dog_time_in_sec{0};
 
@@ -45,7 +46,6 @@ private:
   AVFormatContext* _av_format_context{nullptr};
   AVCodecContext* _av_codec_context_audio{nullptr};
   AVThreadMessageQueue* _av_thread_message_queue{nullptr};
-
 };
 
 } // namespace ffpp
