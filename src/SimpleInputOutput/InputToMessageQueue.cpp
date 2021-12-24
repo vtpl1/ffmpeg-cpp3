@@ -9,7 +9,8 @@
 #include "logging.h"
 namespace ffpp
 {
-InputToMessageQueue::InputToMessageQueue(const std::string& input_name) : _input_name(input_name)
+InputToMessageQueue::InputToMessageQueue(const std::string& input_name, int open_or_listen_timeout_in_sec)
+    : _input_name(input_name), _time_out_in_sec(open_or_listen_timeout_in_sec)
 {
   ThrowOnFfmpegError(av_thread_message_queue_alloc(&_av_thread_message_queue, MSGQ_LENGTH, sizeof(AVPacket)));
   ThrowOnFfmpegReturnNullptr(_av_thread_message_queue);
@@ -29,13 +30,13 @@ bool InputToMessageQueue::Start()
         ThrowOnFfmpegError(av_dict_set(&av_dictionary_opts, "rtsp_transport", "tcp", 0));
         ThrowOnFfmpegError(av_dict_set(&av_dictionary_opts, "rtsp_flags", "prefer_tcp", 0));
       } else if (_input_name.rfind("rtmp", 0) == 0) {
-        ThrowOnFfmpegError(av_dict_set(&av_dictionary_opts, "listen", "1", 0));
-        ThrowOnFfmpegError(av_dict_set(&av_dictionary_opts, "timeout", "10", 0));
-        ThrowOnFfmpegError(av_dict_set(&av_dictionary_opts, "rtmp_buffer", "100", 0));
-        ThrowOnFfmpegError(av_dict_set(&av_dictionary_opts, "rtmp_live", "live", 0));
+        ThrowOnFfmpegError(av_dict_set_int(&av_dictionary_opts, "rtmp_listen", 1, 0));
+        ThrowOnFfmpegError(av_dict_set_int(&av_dictionary_opts, "timeout", _time_out_in_sec, 0));
+        ThrowOnFfmpegError(av_dict_set_int(&av_dictionary_opts, "rtmp_buffer", 100, 0));
+        ThrowOnFfmpegError(av_dict_set_int(&av_dictionary_opts, "rtmp_live", 1, 0));
         ThrowOnFfmpegError(av_dict_set(&av_dictionary_opts, "analyzeduration", "32", 0));
         ThrowOnFfmpegError(av_dict_set(&av_dictionary_opts, "probesize", "32", 0));
-        ThrowOnFfmpegError(av_dict_set(&av_dictionary_opts, "sync", "1", 0));
+        ThrowOnFfmpegError(av_dict_set_int(&av_dictionary_opts, "sync", 1, 0));
         ThrowOnFfmpegError(av_dict_set(&av_dictionary_opts, "fflags", "nobuffer", 0));
         ThrowOnFfmpegError(av_dict_set(&av_dictionary_opts, "fflags", "flush_packets", 0));
       }
@@ -101,6 +102,9 @@ bool InputToMessageQueue::Start()
   av_dict_free(&av_dictionary_opts);
   if (ret) {
     RAY_LOG_INF << "Starting InputToMessageQueue thread";
+    _time_out_in_sec = 5;
+    RAY_LOG_INF << "Setting read/write timeout to " << _time_out_in_sec;
+
     _thread.reset(new std::thread(&InputToMessageQueue::run, this));
   }
 
@@ -126,9 +130,9 @@ void InputToMessageQueue::Stop()
 int InputToMessageQueue::resetWatchDogTimer(void* opaque)
 {
   InputToMessageQueue* p = static_cast<InputToMessageQueue*>(opaque);
-  int ret = (time(NULL) - p->_last_watch_dog_time_in_sec) >= 5 ? 1 : 0; // 5 seconds timeout
+  int ret = (time(NULL) - p->_last_watch_dog_time_in_sec) >= p->_time_out_in_sec ? 1 : 0; // 5 seconds timeout
   if (ret > 0) {
-    std::cout << "Returning InputToMessageQueue zero for callback" << std::endl;
+    RAY_LOG_ERR << "Returning InputToMessageQueue abort";
   }
   return ret;
 }
@@ -165,6 +169,7 @@ void InputToMessageQueue::run()
     _is_internal_shutdown = true;
     RAY_LOG_ERR << "Closing due to: " << e.what();
   }
+  _is_internal_shutdown = true;
   RAY_LOG_INF << "End : InputToMessageQueue";
 }
 } // namespace ffpp

@@ -4,10 +4,10 @@
     "files.trimFinalNewlines": true,
     "cmake.buildDirectory": "${workspaceFolder}/build",
     "cmake.configureSettings": {
-        // "VCPKG_TARGET_TRIPLET": "x64-windows-static",
-        // "CMAKE_TOOLCHAIN_FILE": "${workspaceFolder}/../thirdparty/vcpkg/scripts/buildsystems/vcpkg.cmake",
-        "CMAKE_TOOLCHAIN_FILE": "${workspaceFolder}/thirdparty/vcpkg/scripts/buildsystems/vcpkg.cmake",
-        "VCPKG_TARGET_TRIPLET": "x64-linux"
+        "VCPKG_TARGET_TRIPLET": "x64-windows-static",
+        "CMAKE_TOOLCHAIN_FILE": "${workspaceFolder}/../thirdparty/vcpkg/scripts/buildsystems/vcpkg.cmake",
+        // "CMAKE_TOOLCHAIN_FILE": "${workspaceFolder}/thirdparty/vcpkg/scripts/buildsystems/vcpkg.cmake",
+        // "VCPKG_TARGET_TRIPLET": "x64-linux"
     },
     "files.associations": {
         "array": "cpp",

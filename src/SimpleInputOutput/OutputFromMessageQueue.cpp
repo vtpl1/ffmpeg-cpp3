@@ -7,7 +7,7 @@
 #include "FFmpegException.h"
 #include "OutputFromMessageQueue.h"
 #include "logging.h"
-//http://underpop.online.fr/f/ffmpeg/help/hls-2.htm.gz
+// http://underpop.online.fr/f/ffmpeg/help/hls-2.htm.gz
 constexpr int HLS_SEGMENT_DURATION = 3;
 constexpr int HLS_LIST_SIZE = 2;
 constexpr int HLS_WRAP = 10;
@@ -15,9 +15,10 @@ constexpr int HLS_START_NUMBER = 1;
 namespace ffpp
 {
 OutputFromMessageQueue::OutputFromMessageQueue(const std::string& output_name, void* av_thread_message_queue,
-                                               void* input_av_format_context)
+                                               void* input_av_format_context, int open_or_listen_timeout_in_sec)
     : _output_name(output_name), _av_thread_message_queue(static_cast<AVThreadMessageQueue*>(av_thread_message_queue)),
-      _input_av_format_context(static_cast<AVFormatContext*>(input_av_format_context))
+      _input_av_format_context(static_cast<AVFormatContext*>(input_av_format_context)),
+      _time_out_in_sec(open_or_listen_timeout_in_sec)
 {
 }
 OutputFromMessageQueue::~OutputFromMessageQueue() { Stop(); }
@@ -27,10 +28,27 @@ bool OutputFromMessageQueue::Start()
   AVDictionary* av_dictionary_opts{nullptr};
   do {
     std::string format_hint;
-    if (_output_name.rfind("rtmp", 0) == 0) {
-      format_hint = "flv";
-    } else if (_output_name.find(".m3u8") != std::string::npos) {
-      format_hint = "hls";
+    try {
+      if (_output_name.rfind("rtmp", 0) == 0) {
+        format_hint = "flv";
+      } else if (_output_name.find(".m3u8") != std::string::npos) {
+        format_hint = "hls";
+        ThrowOnFfmpegError(av_dict_set_int(&av_dictionary_opts, "start_number", HLS_START_NUMBER, 0));
+        ThrowOnFfmpegError(av_dict_set_int(&av_dictionary_opts, "hls_time", HLS_SEGMENT_DURATION, 0));
+        ThrowOnFfmpegError(av_dict_set_int(&av_dictionary_opts, "hls_list_size", HLS_LIST_SIZE, 0));
+        ThrowOnFfmpegError(av_dict_set(&av_dictionary_opts, "hls_flags", "delete_segments", 0));
+        // ThrowOnFfmpegError(av_dict_set_int(&av_dictionary_opts, "strftime", 1, 0));
+        // ThrowOnFfmpegError(av_dict_set_int(&av_dictionary_opts, "strftime_mkdir", 1, 0));
+        // ThrowOnFfmpegError(av_dict_set(&av_dictionary_opts, "hls_segment_filename", "m%03d.ts", 0));
+        ThrowOnFfmpegError(av_dict_set_int(&av_dictionary_opts, "temp_file", 1, 0));
+
+        ThrowOnFfmpegError(av_dict_set_int(&av_dictionary_opts, "hls_delete_threshold", HLS_LIST_SIZE, 0));
+        // ThrowOnFfmpegError(av_dict_set(&av_dictionary_opts, "hls_wrap", HLS_WRAP, 0));
+      }
+    } catch (const ffpp::FFmpegException& e) {
+      RAY_LOG_INF << "Not starting: " << e.what();
+      ret = false;
+      break;
     }
     try {
       ThrowOnFfmpegError(avformat_alloc_output_context2(
@@ -48,10 +66,10 @@ bool OutputFromMessageQueue::Start()
       _last_watch_dog_time_in_sec = time(NULL);
       if (format_hint == "hls") {
         // ThrowOnFfmpegError(av_opt_set(_av_format_context->priv_data, "event", "1", 0));
-        ThrowOnFfmpegError(av_opt_set_int(_av_format_context->priv_data, "start_number", HLS_START_NUMBER, 0));
-        ThrowOnFfmpegError(av_opt_set_double(_av_format_context->priv_data, "hls_time", HLS_SEGMENT_DURATION, 0));
-        ThrowOnFfmpegError(av_opt_set_int(_av_format_context->priv_data, "hls_list_size", HLS_LIST_SIZE, 0));
-        ThrowOnFfmpegError(av_opt_set_int(_av_format_context->priv_data, "hls_wrap", HLS_WRAP, 0));
+        // ThrowOnFfmpegError(av_opt_set_int(_av_format_context->priv_data, "start_number", HLS_START_NUMBER, 0));
+        // ThrowOnFfmpegError(av_opt_set_int(_av_format_context->priv_data, "hls_time", HLS_SEGMENT_DURATION, 0));
+        // ThrowOnFfmpegError(av_opt_set_int(_av_format_context->priv_data, "hls_list_size", HLS_LIST_SIZE, 0));
+        // ThrowOnFfmpegError(av_opt_set(_av_format_context, "temp_file", NULL, AV_OPT_SEARCH_CHILDREN));
       }
     } catch (const ffpp::FFmpegException& e) {
       RAY_LOG_INF << "Not starting: " << e.what();
@@ -123,6 +141,8 @@ bool OutputFromMessageQueue::Start()
   av_dict_free(&av_dictionary_opts);
   if (ret) {
     RAY_LOG_INF << "Starting InputToMessageQueue thread";
+    _time_out_in_sec = 5;
+    RAY_LOG_INF << "Setting read/write timeout to " << _time_out_in_sec;
     _last_watch_dog_time_in_sec = time(NULL);
     _thread.reset(new std::thread(&OutputFromMessageQueue::run, this));
   }
@@ -148,9 +168,9 @@ void OutputFromMessageQueue::Stop()
 int OutputFromMessageQueue::resetWatchDogTimer(void* opaque)
 {
   OutputFromMessageQueue* p = static_cast<OutputFromMessageQueue*>(opaque);
-  int ret = (time(NULL) - p->_last_watch_dog_time_in_sec) >= 5 ? 1 : 0; // 5 seconds timeout
+  int ret = (time(NULL) - p->_last_watch_dog_time_in_sec) >= p->_time_out_in_sec ? 1 : 0; // 5 seconds timeout
   if (ret > 0) {
-    std::cout << "Returning OutputFromMessageQueue zero for callback" << std::endl;
+    RAY_LOG_ERR << "Returning OutputFromMessageQueue abort";
   }
   return ret;
 }
@@ -196,6 +216,7 @@ void OutputFromMessageQueue::run()
   av_write_trailer(_av_format_context);
   avio_close(_av_format_context->pb);
   avformat_free_context(_av_format_context);
+  _is_internal_shutdown = true;
   RAY_LOG_INF << "End : OutputFromMessageQueue";
 }
 } // namespace ffpp

@@ -11,14 +11,16 @@
 #include <string>
 #include <thread>
 
+#include "CoreObject.h"
 #include "ffmpeg.h"
 namespace ffpp
 {
-class OutputFromMessageQueue
+class OutputFromMessageQueue : public CoreObject
 {
 
 public:
-  OutputFromMessageQueue(const std::string& input_name, void* av_thread_message_queue, void* input_av_format_context);
+  OutputFromMessageQueue(const std::string& input_name, void* av_thread_message_queue, void* input_av_format_context,
+                         int open_or_listen_timeout_in_sec);
   ~OutputFromMessageQueue();
   bool Start();
   void SignalToStop();
@@ -26,6 +28,7 @@ public:
   inline bool IsDone() { return (_do_shutdown || _is_internal_shutdown); }
 
   uint64_t _last_watch_dog_time_in_sec{0};
+  int _time_out_in_sec;
 
   static int resetWatchDogTimer(void* opaque);
 

@@ -8,5 +8,5 @@ namespace ffpp
 {
 CoreObject::CoreObject() { CoreContext::instance(); }
 
-CoreObject::~CoreObject() { CoreContext::instance(); }
+CoreObject::~CoreObject() { }
 } // namespace ffpp

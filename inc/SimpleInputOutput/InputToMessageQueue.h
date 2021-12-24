@@ -10,6 +10,7 @@
 #include <string>
 #include <thread>
 
+#include "CoreObject.h"
 #include "FFmpegResource.h"
 #include "ffmpeg.h"
 #ifndef MSGQ_LENGTH
@@ -17,21 +18,24 @@
 #endif
 namespace ffpp
 {
-class InputToMessageQueue
+class InputToMessageQueue : public CoreObject
 {
 
 public:
-  InputToMessageQueue(const std::string& input_name);
+  InputToMessageQueue(const std::string& input_name, int open_or_listen_timeout_in_sec);
   ~InputToMessageQueue();
   bool Start();
   void SignalToStop();
   void Stop();
   inline bool IsDone() { return (_do_shutdown || _is_internal_shutdown); }
   AVThreadMessageQueue* GetMessageQueue();
-  inline AVFormatContext* GetInputAVFormatContext() { return _av_format_context; } // Valid onllly after successful start
+  inline AVFormatContext* GetInputAVFormatContext()
+  {
+    return _av_format_context;
+  } // Valid onllly after successful start
 
   uint64_t _last_watch_dog_time_in_sec{0};
-
+  int _time_out_in_sec;
   static int resetWatchDogTimer(void* opaque);
 
 private:
